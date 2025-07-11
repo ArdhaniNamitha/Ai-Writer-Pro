@@ -38,22 +38,24 @@ def format_as_study_notes(summary_text):
     current_chunk = []
 
     for i, sentence in enumerate(sentences):
-        current_chunk.append(sentence.strip())
+        if sentence.strip():
+            current_chunk.append(sentence.strip())
         if len(current_chunk) >= 4 or i == len(sentences) - 1:
             chunks.append(current_chunk)
             current_chunk = []
 
+    section_titles = [
+        "📘 Introduction",
+        "🔍 Key Highlights",
+        "📌 Important Details",
+        "🧭 Insights & Observations",
+        "📤 Conclusion",
+        "📝 Final Thoughts"
+    ]
+
     output = ""
     for i, chunk in enumerate(chunks):
-        if not chunk:
-            continue
-        heading_source = chunk[0]
-        heading_words = [w for w in heading_source.split() if len(w) > 4]
-        if heading_words:
-            heading = f"🧠 {heading_words[0].capitalize()} Insights"
-        else:
-            heading = f"🧠 Topic {i+1}"
-
+        heading = section_titles[i % len(section_titles)]
         output += f"\n\n### {heading}\n\n"
         for sentence in chunk:
             output += f"- {sentence.rstrip('.')}\n"
