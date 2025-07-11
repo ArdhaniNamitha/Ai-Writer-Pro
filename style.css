@@ -1,0 +1,66 @@
+st.markdown(f"""
+    <style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap');
+
+    html, body {{
+        font-family: 'Poppins', sans-serif;
+        background: linear-gradient(135deg, #1e1e2f, #3a3a52);
+        color: {text_color};
+    }}
+
+    section.main > div {{
+        background-color: transparent;
+        padding: 2rem;
+    }}
+
+    .title {{
+        text-align: center;
+        font-size: 50px;
+        font-weight: 700;
+        color: {header_color};
+        margin-top: 20px;
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+    }}
+
+    .summary-box {{
+        background-color: {card_color};
+        padding: 20px;
+        border-radius: 15px;
+        margin-top: 25px;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+    }}
+
+    .stTextArea, .stFileUploader, .stSelectbox {{
+        background-color: #ffffff10 !important;
+        border-radius: 10px;
+        padding: 10px;
+        color: {text_color};
+    }}
+
+    .stButton>button {{
+        background-color: {primary};
+        color: white;
+        padding: 12px 30px;
+        border-radius: 30px;
+        font-weight: bold;
+        font-size: 16px;
+        box-shadow: 0 0 15px {primary};
+        transition: 0.3s ease;
+    }}
+
+    .stButton>button:hover {{
+        background-color: #333;
+        color: {primary};
+        box-shadow: 0 0 20px {primary};
+    }}
+
+    .stDownloadButton>button {{
+        background-color: #2e7d32;
+        color: white;
+        padding: 10px 25px;
+        border-radius: 25px;
+        font-weight: bold;
+        margin-top: 10px;
+    }}
+    </style>
+""", unsafe_allow_html=True)

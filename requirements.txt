@@ -1,0 +1,8 @@
+streamlit
+transformers
+textstat
+nltk
+fpdf
+python-docx
+pdfplumber
+scikit-learn
