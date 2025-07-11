@@ -1,8 +1,9 @@
 streamlit
 transformers
-textstat
-nltk
-fpdf
-python-docx
-pdfplumber
+torch
+sentencepiece
 scikit-learn
+nltk
+textstat
+pdfplumber
+python-docx
