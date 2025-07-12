@@ -46,23 +46,45 @@ def format_as_study_notes(summary_text):
             chunks.append(current_chunk)
             current_chunk = []
 
+    fallback_headings = [
+        "📘 Introduction",
+        "🔍 Key Takeaways",
+        "🧠 Author’s View",
+        "📌 Examples & Insights",
+        "📤 Conclusion",
+        "📝 Final Thoughts"
+    ]
+
+    used_titles = set()
     output = ""
+
     for i, chunk in enumerate(chunks):
-        if not chunk:
-            continue
+        heading = None
 
-        # Try to build a meaningful heading from the chunk
-        first_sentence = chunk[0]
-        words = [w.strip(string.punctuation) for w in first_sentence.split()]
-        keywords = [w for w in words if len(w) > 3 and w[0].isupper()]  # Filter proper nouns or titles
+        # Try to extract a good title from first sentence of the chunk
+        first_sentence = chunk[0].strip(string.punctuation)
+        words = [w for w in first_sentence.split() if len(w) > 4]
 
-        if keywords:
-            heading = f"### 🔹 {' '.join(keywords[:3])}"
-        else:
-            heading = f"### 📝 Section {i+1}"
+        # Choose best word that's not already used as title
+        for word in words:
+            word_cap = word.capitalize()
+            if word_cap not in used_titles:
+                heading = f"### 🧠 {word_cap}"
+                used_titles.add(word_cap)
+                break
 
+        # Fallback to professional heading list
+        if not heading:
+            fallback = fallback_headings[i % len(fallback_headings)]
+            while fallback in used_titles:
+                i += 1
+                fallback = fallback_headings[i % len(fallback_headings)]
+            heading = f"### {fallback}"
+            used_titles.add(fallback)
+
+        # Build section
         output += f"\n\n{heading}\n\n"
-        for sentence in chunk:
-            output += f"- {sentence.rstrip('.')}\n"
+        for line in chunk:
+            output += f"- {line.rstrip('.')}\n"
 
     return output.strip()
