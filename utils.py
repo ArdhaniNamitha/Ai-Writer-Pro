@@ -33,6 +33,8 @@ def extract_keywords(text, top_n=5):
     return keywords[:top_n]
 
 def format_as_study_notes(summary_text):
+    import string
+
     sentences = re.split(r'(?<=[.!?])\s+', summary_text)
     chunks = []
     current_chunk = []
@@ -44,19 +46,22 @@ def format_as_study_notes(summary_text):
             chunks.append(current_chunk)
             current_chunk = []
 
-    section_titles = [
-        "📘 Introduction",
-        "🔍 Key Highlights",
-        "📌 Important Details",
-        "🧭 Insights & Observations",
-        "📤 Conclusion",
-        "📝 Final Thoughts"
-    ]
-
     output = ""
     for i, chunk in enumerate(chunks):
-        heading = section_titles[i % len(section_titles)]
-        output += f"\n\n### {heading}\n\n"
+        if not chunk:
+            continue
+
+        # Try to build a meaningful heading from the chunk
+        first_sentence = chunk[0]
+        words = [w.strip(string.punctuation) for w in first_sentence.split()]
+        keywords = [w for w in words if len(w) > 3 and w[0].isupper()]  # Filter proper nouns or titles
+
+        if keywords:
+            heading = f"### 🔹 {' '.join(keywords[:3])}"
+        else:
+            heading = f"### 📝 Section {i+1}"
+
+        output += f"\n\n{heading}\n\n"
         for sentence in chunk:
             output += f"- {sentence.rstrip('.')}\n"
 
