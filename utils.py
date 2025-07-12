@@ -33,58 +33,43 @@ def extract_keywords(text, top_n=5):
     return keywords[:top_n]
 
 def format_as_study_notes(summary_text):
-    import string
+    import re
 
-    sentences = re.split(r'(?<=[.!?])\s+', summary_text)
-    chunks = []
-    current_chunk = []
+    # Extract first heading as main title if available
+    title_match = re.match(r'^#{1,6}\s+(.*)', summary_text)
+    main_title = title_match.group(1).strip() if title_match else "📄 Summary"
 
-    for i, sentence in enumerate(sentences):
-        if sentence.strip():
-            current_chunk.append(sentence.strip())
-        if len(current_chunk) >= 4 or i == len(sentences) - 1:
-            chunks.append(current_chunk)
-            current_chunk = []
+    # Split by markdown headings or fallback with sentence grouping
+    sections = re.split(r'(#+ .+)', summary_text)
+    output = f"## 📄 {main_title}\n"
 
-    fallback_headings = [
-        "📘 Introduction",
-        "🔍 Key Takeaways",
-        "🧠 Author’s View",
-        "📌 Examples & Insights",
-        "📤 Conclusion",
-        "📝 Final Thoughts"
-    ]
-
-    used_titles = set()
-    output = ""
-
-    for i, chunk in enumerate(chunks):
-        heading = None
-
-        # Try to extract a good title from first sentence of the chunk
-        first_sentence = chunk[0].strip(string.punctuation)
-        words = [w for w in first_sentence.split() if len(w) > 4]
-
-        # Choose best word that's not already used as title
-        for word in words:
-            word_cap = word.capitalize()
-            if word_cap not in used_titles:
-                heading = f"### 🧠 {word_cap}"
-                used_titles.add(word_cap)
-                break
-
-        # Fallback to professional heading list
-        if not heading:
-            fallback = fallback_headings[i % len(fallback_headings)]
-            while fallback in used_titles:
-                i += 1
-                fallback = fallback_headings[i % len(fallback_headings)]
-            heading = f"### {fallback}"
-            used_titles.add(fallback)
-
-        # Build section
-        output += f"\n\n{heading}\n\n"
-        for line in chunk:
-            output += f"- {line.rstrip('.')}\n"
+    if len(sections) > 1:
+        for i in range(1, len(sections), 2):
+            heading = sections[i].strip()
+            body = sections[i+1].strip() if i+1 < len(sections) else ""
+            body_lines = [f"- {line.strip().rstrip('.')}" for line in body.split('. ') if line.strip()]
+            output += f"\n\n### {heading}\n" + "\n".join(body_lines)
+    else:
+        # Fallback mode (no headings detected)
+        fallback_headings = [
+            "📘 Introduction",
+            "🔍 Key Takeaways",
+            "🧠 Author’s View",
+            "📌 Examples & Insights",
+            "📤 Conclusion",
+            "📝 Final Thoughts"
+        ]
+        sentences = re.split(r'(?<=[.!?])\s+', summary_text)
+        chunks, current = [], []
+        for i, sentence in enumerate(sentences):
+            current.append(sentence.strip())
+            if len(current) >= 4 or i == len(sentences) - 1:
+                chunks.append(current)
+                current = []
+        for i, chunk in enumerate(chunks):
+            heading = fallback_headings[i % len(fallback_headings)]
+            output += f"\n\n### {heading}\n"
+            for line in chunk:
+                output += f"- {line.rstrip('.')}\n"
 
     return output.strip()
