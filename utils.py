@@ -35,41 +35,42 @@ def extract_keywords(text, top_n=5):
 def format_as_study_notes(summary_text):
     import re
 
-    # Extract first heading as main title if available
-    title_match = re.match(r'^#{1,6}\s+(.*)', summary_text)
-    main_title = title_match.group(1).strip() if title_match else "📄 Summary"
+    fallback_headings = [
+        "📘 Introduction",
+        "🔍 Key Takeaways",
+        "🧠 Author’s View",
+        "📌 Examples & Insights",
+        "📤 Conclusion",
+        "📝 Final Thoughts"
+    ]
 
-    # Split by markdown headings or fallback with sentence grouping
-    sections = re.split(r'(#+ .+)', summary_text)
-    output = f"## 📄 {main_title}\n"
-
-    if len(sections) > 1:
-        for i in range(1, len(sections), 2):
-            heading = sections[i].strip()
-            body = sections[i+1].strip() if i+1 < len(sections) else ""
-            body_lines = [f"- {line.strip().rstrip('.')}" for line in body.split('. ') if line.strip()]
-            output += f"\n\n### {heading}\n" + "\n".join(body_lines)
+    # Attempt to find title from summary (first line starting with a capitalized phrase)
+    match = re.search(r'^(.{10,100}?)[:\n]', summary_text)
+    if match:
+        article_title = match.group(1).strip()
     else:
-        # Fallback mode (no headings detected)
-        fallback_headings = [
-            "📘 Introduction",
-            "🔍 Key Takeaways",
-            "🧠 Author’s View",
-            "📌 Examples & Insights",
-            "📤 Conclusion",
-            "📝 Final Thoughts"
-        ]
-        sentences = re.split(r'(?<=[.!?])\s+', summary_text)
-        chunks, current = [], []
-        for i, sentence in enumerate(sentences):
-            current.append(sentence.strip())
-            if len(current) >= 4 or i == len(sentences) - 1:
-                chunks.append(current)
-                current = []
-        for i, chunk in enumerate(chunks):
-            heading = fallback_headings[i % len(fallback_headings)]
-            output += f"\n\n### {heading}\n"
-            for line in chunk:
-                output += f"- {line.rstrip('.')}\n"
+        article_title = "Summary"
+
+    # Remove title from the main body if duplicated
+    body = summary_text.replace(article_title, "").strip()
+
+    sentences = re.split(r'(?<=[.!?])\s+', body)
+    chunks, current_chunk = [], []
+
+    for i, sentence in enumerate(sentences):
+        if sentence.strip():
+            current_chunk.append(sentence.strip())
+        if len(current_chunk) >= 4 or i == len(sentences) - 1:
+            chunks.append(current_chunk)
+            current_chunk = []
+
+    output = f"## 📄 {article_title}\n\n"
+
+    for i, chunk in enumerate(chunks):
+        heading = fallback_headings[i % len(fallback_headings)]
+        output += f"### {heading}\n\n"
+        for sentence in chunk:
+            output += f"- {sentence.rstrip('.')}\n"
+        output += "\n"
 
     return output.strip()
