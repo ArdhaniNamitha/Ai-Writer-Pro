@@ -117,7 +117,8 @@ if st.button("🧠 Generate Summary"):
         readability = get_readability(summary)
         keywords = extract_keywords(input_text)
 
-        formatted = format_as_study_notes(summary) if format_option == "Smart Notes" else summary
+        # ✅ Pass original input for title extraction
+        formatted = format_as_study_notes(summary, original_text=input_text) if format_option == "Smart Notes" else summary
 
         st.success("✅ Summary Generated!")
         st.markdown('<div class="summary-box">', unsafe_allow_html=True)
